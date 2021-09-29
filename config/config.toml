@@ -1,0 +1,20 @@
+[server]
+addr = "127.0.0.1:8088"
+debug = false
+
+[log]
+log_file = "log.log"
+log_level = "DEBUG"
+
+[database.example]
+# mysql: user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
+# postgres: host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai
+# sqlite: filename, eg: server.db, or file::memory:?cache=shared
+type = "sqlite"
+dsn = "file::memory:?cache=shared"
+max_conn = 2
+
+[database.postgres]
+type = "postgres"
+dsn = "host=localhost user=postgres password=postgres dbname=server port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+max_conn = 10
