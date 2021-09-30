@@ -94,7 +94,7 @@ func (s *Service) Login(ctx context.Context, login *request.UserLogin) (string, 
 		return "", consts.IncorrectPasswordWithError(err)
 	}
 
-	claims := &model.Claims{
+	claims := &model.UserClaims{
 		UserId: user.UserID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(3 * time.Hour).Unix(),

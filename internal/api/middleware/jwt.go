@@ -9,10 +9,12 @@ package middleware
 
 import (
 	"custom_server/internal/consts"
+	"custom_server/internal/model"
 	"custom_server/internal/model/response"
 	"custom_server/pkg/errno"
 	"custom_server/pkg/log"
 	"custom_server/pkg/util"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -25,7 +27,7 @@ func Auth() gin.HandlerFunc {
 				return consts.PermissionDenied
 			}
 
-			claims, err := util.ParseToken(consts.JwtSecret, token)
+			claims, err := util.ParseToken(token, consts.JwtSecret, &model.UserClaims{})
 			if err != nil {
 				return consts.TokenInvalidWithError(err)
 			}
@@ -36,15 +38,28 @@ func Auth() gin.HandlerFunc {
 		}(ctx)
 
 		if err != nil {
-			log.ErrorWithGinCtx(ctx, "authorization", log.NameError("error", err))
+			log.ErrorWithGinCtx(ctx, "authorization failed", log.NameError("error", err))
 			ctx.JSON(http.StatusOK, response.Response{
 				Code: err.Code,
 				Msg:  err.Msg,
-				Data: nil,
 			})
 			ctx.Abort()
 			return
 		}
 		ctx.Next()
 	}
+}
+
+func ParseUserClaims(ctx *gin.Context) (*model.UserClaims, error) {
+	token := ctx.Request.Header.Get("Authorization")
+	claims, err := util.ParseToken(token, consts.JwtSecret, &model.UserClaims{})
+	if err != nil {
+		return nil, err
+	}
+
+	user, ok := claims.(*model.UserClaims)
+	if !ok {
+		return nil, errors.New("convert to model.UserClaims failed")
+	}
+	return user, nil
 }

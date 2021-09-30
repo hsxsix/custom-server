@@ -8,6 +8,7 @@
 package user
 
 import (
+	"custom_server/internal/api/middleware"
 	"custom_server/internal/consts"
 	"custom_server/internal/model/request"
 	"custom_server/internal/model/response"
@@ -44,15 +45,16 @@ func (u *User) UserList(ctx *gin.Context) interface{} {
 }
 
 func (u *User) UserInfo(ctx *gin.Context) interface{} {
-	userId := ctx.Query("user_id")
-	if userId == "" {
-		return nil
+	userClaims, err := middleware.ParseUserClaims(ctx)
+	if err != nil {
+		log.ErrorWithGinCtx(ctx, "get user info error", log.NameError("error", err))
+		return consts.TokenInvalid
 	}
 
-	result, err := u.srv.GetUserInfoByID(util.CtxWithRequestID(ctx), userId)
+	result, err := u.srv.GetUserInfoByID(util.CtxWithRequestID(ctx), userClaims.UserId)
 	if err != nil {
 		log.ErrorWithGinCtx(ctx, "get user info error",
-			log.String("user id", userId), log.NameError("error", err))
+			log.String("user id", userClaims.UserId), log.NameError("error", err))
 		return err
 	}
 	return result

@@ -37,7 +37,7 @@ func ServerRouter(app *server.GinApp) {
 	userGroup := engine.Group("/user")
 	user := user.NewUser(app.DB("postgres"))
 	userGroup.GET("/list", middleware.Auth(), Wrap(user.UserList))
-	userGroup.GET("/info", Wrap(user.UserInfo))
+	userGroup.GET("/info", middleware.Auth(), Wrap(user.UserInfo))
 	userGroup.POST("/login", Wrap(user.Login))
 	userGroup.POST("/register", Wrap(user.Register))
 }
